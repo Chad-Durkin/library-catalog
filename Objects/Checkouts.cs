@@ -48,13 +48,13 @@ namespace LibraryCatalog
             SqlConnection conn = DB.Connection();
             conn.Open();
 
-            SqlCommand cmd = new SqlCommand("INSERT INTO checkouts (patrons_id, copies_id, checkout_date, returned, overdue) OUTPUT INSERTED.id VALUES (@PatronsId, @CopiesId, @Returned, @CheckoutDate, @Overdue);", conn);
+            SqlCommand cmd = new SqlCommand("INSERT INTO checkouts (patrons_id, copies_id, checkout_date, returned, overdue) OUTPUT INSERTED.id VALUES (@PatronsId, @CopiesId, @CheckoutDate, @Returned, @Overdue);", conn);
 
-            cmd.Parameters.Add(new SqlParameter("@PatronsId", this.GetPatronsId()));
-            cmd.Parameters.Add(new SqlParameter("@CopiesId", this.GetCopiesId()));
-            cmd.Parameters.Add(new SqlParameter("@Returned", this.GetReturned()));
+            cmd.Parameters.Add(new SqlParameter("@PatronsId", this.GetPatronsId().ToString()));
+            cmd.Parameters.Add(new SqlParameter("@CopiesId", this.GetCopiesId().ToString()));
             cmd.Parameters.Add(new SqlParameter("@CheckoutDate", this.GetCheckoutDate()));
-            cmd.Parameters.Add(new SqlParameter("@Overdue", this.GetOverdue()));
+            cmd.Parameters.Add(new SqlParameter("@Returned", this.GetReturned().ToString()));
+            cmd.Parameters.Add(new SqlParameter("@Overdue", this.GetOverdue().ToString()));
 
             SqlDataReader rdr = cmd.ExecuteReader();
 
@@ -73,7 +73,7 @@ namespace LibraryCatalog
             SqlConnection conn = DB.Connection();
             conn.Open();
 
-            SqlCommand cmd = new SqlCommand("SELECT * FROM checkotus WHERE patrons_id = @PatronsId;", conn);
+            SqlCommand cmd = new SqlCommand("SELECT * FROM checkouts WHERE patrons_id = @PatronsId;", conn);
 
             cmd.Parameters.Add(new SqlParameter("@PatronsId", id));
 
@@ -171,7 +171,7 @@ namespace LibraryCatalog
             SqlCommand cmd = new SqlCommand("UPDATE checkouts SET returned = @Returned WHERE id = @CheckoutId;", conn);
 
             cmd.Parameters.Add(new SqlParameter("@Returned", "1"));
-            cmd.Parameters.Add(new SqlParameter("@CheckoutId", this.GetId()));
+            cmd.Parameters.Add(new SqlParameter("@CheckoutId", this.GetId().ToString()));
 
             cmd.ExecuteNonQuery();
 
@@ -196,7 +196,7 @@ namespace LibraryCatalog
             SqlCommand cmd = new SqlCommand("UPDATE checkouts SET checkout_date = @CheckoutDate WHERE id = @CheckoutId;", conn);
 
             cmd.Parameters.Add(new SqlParameter("@CheckoutDate", checkoutDate));
-            cmd.Parameters.Add(new SqlParameter("@CheckoutId", this.GetId()));
+            cmd.Parameters.Add(new SqlParameter("@CheckoutId", this.GetId().ToString()));
 
             cmd.ExecuteNonQuery();
 
@@ -221,7 +221,7 @@ namespace LibraryCatalog
             SqlCommand cmd = new SqlCommand("UPDATE checkouts SET overdue = @Overdue WHERE id = @CheckoutId;", conn);
 
             cmd.Parameters.Add(new SqlParameter("@Overdue", "1"));
-            cmd.Parameters.Add(new SqlParameter("@CheckoutId", this.GetId()));
+            cmd.Parameters.Add(new SqlParameter("@CheckoutId", this.GetId().ToString()));
 
             cmd.ExecuteNonQuery();
 
@@ -233,7 +233,7 @@ namespace LibraryCatalog
 
         public static void DeleteAll()
         {
-            DB.TableDeleteAll("patrons");
+            DB.TableDeleteAll("checkouts");
         }
 
 

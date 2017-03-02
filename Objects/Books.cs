@@ -47,11 +47,9 @@ namespace LibraryCatalog
         public void Save()
         {
             Book foundBook = Book.FindByTitle(this.GetTitle());
-            Console.WriteLine(this.GetTitle());
-            Console.WriteLine(this.GetCopyCount());
-
             if(foundBook.GetCopyCount() == 0)
             {
+                this.SetCopyCount();
                 SqlConnection conn = DB.Connection();
                 conn.Open();
 
@@ -73,7 +71,6 @@ namespace LibraryCatalog
             }
             else{
                 foundBook.SetCopyCount();
-                Console.WriteLine(foundBook.GetCopyCount());
                 SqlConnection conn = DB.Connection();
                 conn.Open();
 
@@ -134,7 +131,6 @@ namespace LibraryCatalog
         public static Book FindByAuthorName(string authorName)
         {
             Author foundAuthor = Author.FindByName(authorName);
-            Console.WriteLine(foundAuthor);
 
             SqlConnection conn = DB.Connection();
             conn.Open();
@@ -244,7 +240,6 @@ namespace LibraryCatalog
             else
             {
                 foundBook.SetCopyCount();
-                Console.WriteLine(foundBook.GetCopyCount());
                 SqlConnection conn = DB.Connection();
                 conn.Open();
 
@@ -370,21 +365,28 @@ namespace LibraryCatalog
 
         public void SetCopyCount()
         {
-            _copyCount += 1;
-
-            SqlConnection conn = DB.Connection();
-            conn.Open();
-
-            SqlCommand cmd = new SqlCommand("UPDATE books SET copy_count = @CopyCount WHERE title = @BooksTitle;", conn);
-
-            cmd.Parameters.Add(new SqlParameter("@CopyCount", this.GetCopyCount()));
-            cmd.Parameters.Add(new SqlParameter("@BooksTitle", this.GetTitle()));
-
-            cmd.ExecuteNonQuery();
-
-            if(conn != null)
+            if(this.GetCopyCount() == 0)
             {
-                conn.Close();
+                _copyCount += 1;
+            }
+            else
+            {
+                _copyCount += 1;
+
+                SqlConnection conn = DB.Connection();
+                conn.Open();
+
+                SqlCommand cmd = new SqlCommand("UPDATE books SET copy_count = @CopyCount WHERE title = @BooksTitle;", conn);
+
+                cmd.Parameters.Add(new SqlParameter("@CopyCount", this.GetCopyCount()));
+                cmd.Parameters.Add(new SqlParameter("@BooksTitle", this.GetTitle()));
+
+                cmd.ExecuteNonQuery();
+
+                if(conn != null)
+                {
+                    conn.Close();
+                }
             }
         }
         public int GetAuthorCount()

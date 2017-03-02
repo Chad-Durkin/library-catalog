@@ -38,9 +38,10 @@ namespace LibraryCatalog
             SqlConnection conn = DB.Connection();
             conn.Open();
 
-            SqlCommand cmd = new SqlCommand("INSERT INTO copies (books_id) OUTPUT INSERTED.id VALUES (@BooksId);", conn);
+            SqlCommand cmd = new SqlCommand("INSERT INTO copies (books_id, checkedout) OUTPUT INSERTED.id VALUES (@BooksId, @Checkedout);", conn);
 
             cmd.Parameters.Add(new SqlParameter("@BooksId", this.GetBooksId()));
+            cmd.Parameters.Add(new SqlParameter("@Checkedout", this.GetCheckedOut()));
 
             SqlDataReader rdr = cmd.ExecuteReader();
 
@@ -66,8 +67,8 @@ namespace LibraryCatalog
             while(rdr.Read())
             {
                 int copyId = rdr.GetInt32(0);
-                int copyBooksId = rdr.GetInt32(0);
-                int copyCheckedOut = rdr.GetByte(0);
+                int copyBooksId = rdr.GetInt32(1);
+                int copyCheckedOut = rdr.GetByte(2);
                 Copy newCopy = new Copy(copyBooksId, copyCheckedOut, copyId);
                 allCopies.Add(newCopy);
             }
@@ -105,7 +106,7 @@ namespace LibraryCatalog
         public void SetCheckedOut()
         {
             _checkedOut = 1;
-            
+
             SqlConnection conn = DB.Connection();
             conn.Open();
 
