@@ -99,18 +99,38 @@ namespace LibraryCatalog
             testBook.Save();
 
             Book testBook1 = new Book("Grapes of Wrath", "1970-09-01");
-            testBook.Save();
+            testBook1.Save();
 
             //Act
-            testBook1.UpdateTitle("Grapes of Wrath");
+            testBook.UpdateTitle("Grapes of Wrath");
 
             List<Book> allBooks = Book.GetAll();
-            List<Book> expected = new List<Book>{testBook1};
 
-            int testCount = testBook.GetCopyCount();
+            int testCount = allBooks[0].GetCopyCount();
 
             //Assert
             Assert.Equal(testCount, 2);
+        }
+
+        [Fact]
+        public void Test_UpdateTitle_UpdateNewBookTitleFromDatabase()
+        {
+            //Arrange
+            Book testBook = new Book("The Giver", "1970-09-01");
+            testBook.Save();
+
+            Book testBook1 = new Book("Grapes of Wrath", "1970-09-01");
+            testBook1.Save();
+
+            //Act
+            testBook.UpdateTitle("Bread and Butter");
+
+            List<Book> allBooks = Book.GetAll();
+
+            int testCount = allBooks[0].GetCopyCount();
+
+            //Assert
+            Assert.Equal(testCount, 1);
         }
 
         public void Dispose()

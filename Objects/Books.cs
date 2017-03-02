@@ -156,7 +156,7 @@ namespace LibraryCatalog
         public void UpdateTitle(string newTitle)
         {
             Book foundBook = Book.FindByTitle(newTitle);
-            if(!(foundBook is Book))
+            if(foundBook.GetCopyCount() == 0)
             {
                 SqlConnection conn = DB.Connection();
                 conn.Open();
@@ -175,8 +175,8 @@ namespace LibraryCatalog
             }
             else
             {
-                foundBook.SetAuthorCount();
-
+                foundBook.SetCopyCount();
+                Console.WriteLine(foundBook.GetCopyCount());
                 SqlConnection conn = DB.Connection();
                 conn.Open();
 
