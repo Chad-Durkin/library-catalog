@@ -1,0 +1,22 @@
+@{
+    Layout="/Shared/_Layout.cshtml";
+}
+
+@if(@Model["books"].Count == 0)
+{
+    <h4 class="center-align">Currently there are no books in the Book Den 8(</h4>
+}
+else
+{
+    <form action="/book/search/title" method="get">
+        <label for="title">Search By Title:</label>
+        <input type="text" name="title">
+        <button type="submit">Search!</button>
+    </form>
+    <br>
+    <form action="/book/search/author" method="get">
+        <label for="author">Search By Author:</label>
+        <input type="text" name="author">
+        <button type="submit">Search!</button>
+    </form>
+}

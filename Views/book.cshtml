@@ -1,0 +1,27 @@
+@{
+    Layout="/Shared/_Layout.cshtml";
+}
+@if(@Model.GetCopyCount() > 0)
+{
+    <h3>@Model.GetTitle()</h3>
+    <h4>@Model.GetPublicationDate()</h4>
+    <h4># of Copies: @Model.GetCopyCount()</h4>
+    <h4># of Authors: @Model.GetAuthorCount()</h4>
+
+    <form action="/book/update/@Model.GetId()" method="post">
+    <input type="hidden" name="_method" value="PATCH">
+    <input type="hidden" name="book-id" value="@Model.GetId()">
+    <label for="title">Update Book Title:</label>
+    <input type="text" name="title">
+    <button type="submit">Update!</button>
+    </form>
+    <br>
+    <form action="/book/delete/@Model.GetId()" method="post">
+    <input type="hidden" name="_method" value="DELETE">
+    <button type="submit">Delete Book!</button>
+    </form>
+}
+else
+{
+    <h2 class="center-align">We don't have any books under your search information</h2>
+}

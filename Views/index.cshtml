@@ -1,0 +1,15 @@
+@{
+    Layout="/Shared/_Layout.cshtml";
+}
+
+@if(@Model["books"].Count == 0)
+{
+    <h4 class="center-align">Currently there are no books in the Book Den 8(</h4>
+}
+else
+{
+    @foreach(var book in Model["books"])
+    {
+        <li><a href='/book/@book.GetId()'>@book.GetTitle()</a> | Copies: @book.GetCopyCount() | Available: @book.AvailableCopiesOfBook()</li>
+    }
+}

@@ -71,25 +71,11 @@ namespace LibraryCatalog
             }
             else{
                 foundBook.SetCopyCount();
-                SqlConnection conn = DB.Connection();
-                conn.Open();
-
-                SqlCommand cmd = new SqlCommand("INSERT INTO books (title, publication_date, copy_count, author_count) OUTPUT INSERTED.id VALUES (@Title, @PublicationDate, @CopyCount, @AuthorCount);", conn);
-
-                cmd.Parameters.Add(new SqlParameter("@Title", foundBook.GetTitle()));
-                cmd.Parameters.Add(new SqlParameter("@PublicationDate", foundBook.GetPublicationDate()));
-                cmd.Parameters.Add(new SqlParameter("@CopyCount", foundBook.GetCopyCount()));
-                cmd.Parameters.Add(new SqlParameter("@AuthorCount", foundBook.GetAuthorCount()));
-
-
-                SqlDataReader rdr = cmd.ExecuteReader();
-
-                while(rdr.Read())
-                {
-                    this._id = rdr.GetInt32(0);
-                }
-
-                DB.CloseSqlConnection(rdr, conn);
+                this._id = foundBook.GetId();
+                this._title = foundBook.GetTitle();
+                this._publicationDate = foundBook.GetPublicationDate();
+                this._authorCount = foundBook.GetAuthorCount();
+                this._copyCount = foundBook.GetCopyCount();
             }
         }
 
@@ -260,19 +246,60 @@ namespace LibraryCatalog
             }
         }
 
+
+        public int AvailableCopiesOfBook()
+        {
+            List<Copy> allCopies = Copy.GetAll();
+            int booksAvailable = 0;
+
+            foreach(var copy in allCopies)
+            {
+                if(copy.GetBooksId() == this.GetId())
+                {
+                    booksAvailable++;
+                }
+            }
+            return booksAvailable;
+        }
+
         public void DeleteBook()
         {
-            SqlConnection conn = DB.Connection();
-            conn.Open();
+            Book foundBook = Book.FindById(this.GetId());
+            foundBook.MinusCopyCount();
 
-            SqlCommand cmd = new SqlCommand("DELETE FROM books WHERE id = @BooksId; DELETE FROM books_authors WHERE books_id = @BooksId;", conn);
-            cmd.Parameters.Add(new SqlParameter("@BooksId", this.GetId()));
+            List<Copy> allCopies = Copy.CopiesOfBook(this.GetId());
 
-            cmd.ExecuteNonQuery();
-
-            if (conn != null)
+            if(allCopies.Count != 0)
             {
-                conn.Close();
+                SqlConnection conn1 = DB.Connection();
+                conn1.Open();
+
+                SqlCommand cmd1 = new SqlCommand("DELETE FROM copies WHERE id = @CopiesId;", conn1);
+
+                cmd1.Parameters.Add(new SqlParameter("@CopiesId", allCopies[0].GetId()));
+
+                cmd1.ExecuteNonQuery();
+
+                if (conn1 != null)
+                {
+                    conn1.Close();
+                }
+            }
+
+            if(foundBook.GetCopyCount() <= 0)
+            {
+                SqlConnection conn = DB.Connection();
+                conn.Open();
+
+                SqlCommand cmd = new SqlCommand("DELETE FROM books WHERE id = @BooksId; DELETE FROM books_authors WHERE books_id = @BooksId;", conn);
+                cmd.Parameters.Add(new SqlParameter("@BooksId", this.GetId()));
+
+                cmd.ExecuteNonQuery();
+
+                if (conn != null)
+                {
+                    conn.Close();
+                }
             }
         }
 
@@ -303,6 +330,36 @@ namespace LibraryCatalog
              return allBooks;
          }
 
+         public List<Book> BooksNotCheckedOut()
+         {
+             List<Book> booksCheckedOut = new List<Book>{};
+
+             SqlConnection conn = DB.Connection();
+             conn.Open();
+
+             SqlCommand cmd = new SqlCommand("SELECT * FROM copies WHERE books_id = @BooksId AND checkedout = @Checkedout;", conn);
+
+             cmd.Parameters.Add(new SqlParameter("@BooksId", this.GetId()));
+             cmd.Parameters.Add(new SqlParameter("@Checkedout", "0"));
+
+             SqlDataReader rdr = cmd.ExecuteReader();
+
+             while(rdr.Read())
+             {
+                 int bookId = rdr.GetInt32(0);
+                 string bookName = rdr.GetString(1);
+                 string bookPublicationDate = rdr.GetDateTime(2).ToString("yyyy-MM-dd");
+                 int bookCopyCount = rdr.GetInt32(3);
+                 int bookAuthorCount = rdr.GetInt32(4);
+                 Book newBook = new Book(bookName, bookPublicationDate, bookCopyCount, bookAuthorCount, bookId);
+                 booksCheckedOut.Add(newBook);
+             }
+
+             DB.CloseSqlConnection(rdr, conn);
+
+             return booksCheckedOut;
+         }
+
          public List<Author> GetAuthors()
          {
              List<Author> allAuthors = new List<Author>{};
@@ -328,6 +385,7 @@ namespace LibraryCatalog
 
              return allAuthors;
          }
+
 
         public int GetId()
         {
@@ -388,6 +446,26 @@ namespace LibraryCatalog
                     conn.Close();
                 }
             }
+        }
+
+        public void MinusCopyCount()
+        {
+                _copyCount -= 1;
+
+                SqlConnection conn = DB.Connection();
+                conn.Open();
+
+                SqlCommand cmd = new SqlCommand("UPDATE books SET copy_count = @CopyCount WHERE title = @BooksTitle;", conn);
+
+                cmd.Parameters.Add(new SqlParameter("@CopyCount", this.GetCopyCount()));
+                cmd.Parameters.Add(new SqlParameter("@BooksTitle", this.GetTitle()));
+
+                cmd.ExecuteNonQuery();
+
+                if(conn != null)
+                {
+                    conn.Close();
+                }
         }
         public int GetAuthorCount()
         {

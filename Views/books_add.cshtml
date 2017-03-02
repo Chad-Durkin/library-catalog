@@ -1,0 +1,15 @@
+@{
+    Layout="/Shared/_Layout.cshtml";
+}
+
+<h1>Add a new book to the Book Den</h1>
+
+<form action="/books/add" method="post">
+    <label for="title">Title:</label>
+    <input type="text" name="title" required>
+    <label for="publication-date">Publication Date:</label>
+    <input type="date" name="publication-date" required>
+    <label class="active" for="author">Author: (optional)</label>
+    <input type="text" name="author" value="Unknown">
+    <button type="submit" name="button">Add Book</button>
+</form>
