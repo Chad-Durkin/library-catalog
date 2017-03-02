@@ -12,7 +12,7 @@ namespace LibraryCatalog
         private int _copyCount;
         private int _authorCount;
 
-        public Book(string title, string publicationDate, int copyCount = 1, int authorCount = 0, int id = 0)
+        public Book(string title, string publicationDate, int copyCount = 0, int authorCount = 0, int id = 0)
         {
             _title = title;
             _publicationDate = publicationDate;
@@ -46,25 +46,57 @@ namespace LibraryCatalog
 
         public void Save()
         {
-            SqlConnection conn = DB.Connection();
-            conn.Open();
+            Book foundBook = Book.FindByTitle(this.GetTitle());
+            Console.WriteLine(this.GetTitle());
+            Console.WriteLine(this.GetCopyCount());
 
-            SqlCommand cmd = new SqlCommand("INSERT INTO books (title, publication_date, copy_count, author_count) OUTPUT INSERTED.id VALUES (@Title, @PublicationDate, @CopyCount, @AuthorCount);", conn);
-
-            cmd.Parameters.Add(new SqlParameter("@Title", this.GetTitle()));
-            cmd.Parameters.Add(new SqlParameter("@PublicationDate", this.GetPublicationDate()));
-            cmd.Parameters.Add(new SqlParameter("@CopyCount", this.GetCopyCount()));
-            cmd.Parameters.Add(new SqlParameter("@AuthorCount", this.GetAuthorCount()));
-
-            SqlDataReader rdr = cmd.ExecuteReader();
-
-            while(rdr.Read())
+            if(foundBook.GetCopyCount() == 0)
             {
-                this._id = rdr.GetInt32(0);
-            }
+                SqlConnection conn = DB.Connection();
+                conn.Open();
 
-            DB.CloseSqlConnection(rdr, conn);
+                SqlCommand cmd = new SqlCommand("INSERT INTO books (title, publication_date, copy_count, author_count) OUTPUT INSERTED.id VALUES (@Title, @PublicationDate, @CopyCount, @AuthorCount);", conn);
+
+                cmd.Parameters.Add(new SqlParameter("@Title", this.GetTitle()));
+                cmd.Parameters.Add(new SqlParameter("@PublicationDate", this.GetPublicationDate()));
+                cmd.Parameters.Add(new SqlParameter("@CopyCount", this.GetCopyCount()));
+                cmd.Parameters.Add(new SqlParameter("@AuthorCount", this.GetAuthorCount()));
+
+                SqlDataReader rdr = cmd.ExecuteReader();
+
+                while(rdr.Read())
+                {
+                    this._id = rdr.GetInt32(0);
+                }
+
+                DB.CloseSqlConnection(rdr, conn);
+            }
+            else{
+                foundBook.SetCopyCount();
+                Console.WriteLine(foundBook.GetCopyCount());
+                SqlConnection conn = DB.Connection();
+                conn.Open();
+
+                SqlCommand cmd = new SqlCommand("INSERT INTO books (title, publication_date, copy_count, author_count) OUTPUT INSERTED.id VALUES (@Title, @PublicationDate, @CopyCount, @AuthorCount);", conn);
+
+                cmd.Parameters.Add(new SqlParameter("@Title", foundBook.GetTitle()));
+                cmd.Parameters.Add(new SqlParameter("@PublicationDate", foundBook.GetPublicationDate()));
+                cmd.Parameters.Add(new SqlParameter("@CopyCount", foundBook.GetCopyCount()));
+                cmd.Parameters.Add(new SqlParameter("@AuthorCount", foundBook.GetAuthorCount()));
+
+
+                SqlDataReader rdr = cmd.ExecuteReader();
+
+                while(rdr.Read())
+                {
+                    this._id = rdr.GetInt32(0);
+                }
+
+                DB.CloseSqlConnection(rdr, conn);
+            }
         }
+
+
 
         public static Book FindById(int booksId)
         {
@@ -87,7 +119,43 @@ namespace LibraryCatalog
             {
                 bookId = rdr.GetInt32(0);
                 bookTitle = rdr.GetString(1);
-                bookPublicationDate = rdr.GetDateTime(2).ToString();
+                bookPublicationDate = rdr.GetDateTime(2).ToString("yyyy-MM-dd");
+                bookCopyCount = rdr.GetInt32(3);
+                bookAuthorCount = rdr.GetInt32(4);
+            }
+
+            Book newBook = new Book(bookTitle, bookPublicationDate, bookCopyCount, bookAuthorCount, bookId);
+
+            DB.CloseSqlConnection(rdr, conn);
+
+            return newBook;
+        }
+
+        public static Book FindByAuthorName(string authorName)
+        {
+            Author foundAuthor = Author.FindByName(authorName);
+            Console.WriteLine(foundAuthor);
+
+            SqlConnection conn = DB.Connection();
+            conn.Open();
+
+            SqlCommand cmd = new SqlCommand("SELECT books.* FROM authors JOIN books_authors ON (authors.id = books_authors.authors_id) JOIN books ON (books_authors.books_id = books.id) WHERE authors.id = @AuthorId;", conn);
+
+            cmd.Parameters.Add(new SqlParameter("@AuthorId", foundAuthor.GetId()));
+
+            SqlDataReader rdr = cmd.ExecuteReader();
+
+            int bookId = 0;
+            string bookTitle = null;
+            string bookPublicationDate = null;
+            int bookCopyCount = 0;
+            int bookAuthorCount = 0;
+
+            while(rdr.Read())
+            {
+                bookId = rdr.GetInt32(0);
+                bookTitle = rdr.GetString(1);
+                bookPublicationDate = rdr.GetDateTime(2).ToString("yyyy-MM-dd");
                 bookCopyCount = rdr.GetInt32(3);
                 bookAuthorCount = rdr.GetInt32(4);
             }
@@ -120,7 +188,7 @@ namespace LibraryCatalog
             {
                 bookId = rdr.GetInt32(0);
                 bookTitle = rdr.GetString(1);
-                bookPublicationDate = rdr.GetDateTime(2).ToString();
+                bookPublicationDate = rdr.GetDateTime(2).ToString("yyyy-MM-dd");
                 bookCopyCount = rdr.GetInt32(3);
                 bookAuthorCount = rdr.GetInt32(4);
             }

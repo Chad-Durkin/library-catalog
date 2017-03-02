@@ -137,6 +137,9 @@ namespace LibraryCatalog
         {
             Book.DeleteAll();
             Author.DeleteAll();
+            Patron.DeleteAll();
+            Copy.DeleteAll();
+            Checkout.DeleteAll();
         }
     }
 }

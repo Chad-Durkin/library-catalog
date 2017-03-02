@@ -54,6 +54,60 @@ namespace LibraryCatalog
              DB.CloseSqlConnection(rdr, conn);
          }
 
+         public static Author FindAuthorById(int authorId)
+         {
+             SqlConnection conn = DB.Connection();
+             conn.Open();
+
+             SqlCommand cmd = new SqlCommand("SELECT * FROM authors WHERE id = @AuthorsId;", conn);
+
+             cmd.Parameters.Add(new SqlParameter("@AuthorsId", authorId));
+
+             SqlDataReader rdr = cmd.ExecuteReader();
+
+             int authorsId = 0;
+             string authorsName = null;
+
+             while(rdr.Read())
+             {
+                 authorsId = rdr.GetInt32(0);
+                 authorsName = rdr.GetString(1);
+             }
+
+             Author newAuthor = new Author(authorsName, authorsId);
+
+             DB.CloseSqlConnection(rdr, conn);
+
+             return newAuthor;
+         }
+
+         public static Author FindByName(string name)
+         {
+             SqlConnection conn = DB.Connection();
+             conn.Open();
+
+             SqlCommand cmd = new SqlCommand("SELECT * FROM authors WHERE name = @AuthorName;", conn);
+
+             cmd.Parameters.Add(new SqlParameter("@AuthorName", name));
+
+             SqlDataReader rdr = cmd.ExecuteReader();
+
+             int authorId = 0;
+             string authorName = null;
+
+             while(rdr.Read())
+             {
+                 authorId = rdr.GetInt32(0);
+                 authorName = rdr.GetString(1);
+             }
+
+             Author newAuthor = new Author(authorName, authorId);
+
+             DB.CloseSqlConnection(rdr, conn);
+
+             return newAuthor;
+         }
+
          public static List<Author> GetAll()
          {
              List<Author> allAuthors = new List<Author>{};
@@ -62,7 +116,7 @@ namespace LibraryCatalog
              conn.Open();
 
              SqlCommand cmd = new SqlCommand("SELECT * FROM authors", conn);
-             
+
              SqlDataReader rdr = cmd.ExecuteReader();
 
              while(rdr.Read())
