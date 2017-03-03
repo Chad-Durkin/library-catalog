@@ -1,0 +1,5 @@
+@{
+    Layout="/Shared/_Layout.cshtml";
+}
+
+<h4>@model["patron"].GetName(), you successfully checked out @model["book"].GetTtile() on @model["checkout"].GetCheckoutDate()</h4>

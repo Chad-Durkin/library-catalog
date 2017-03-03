@@ -1,0 +1,25 @@
+@{
+    Layout="/Shared/_Layout.cshtml";
+}
+
+<div class="row">
+    <div class="col-md-4">
+    @foreach(var book in Model)
+    {
+        <li>@book.GetTitle()</li>
+    }
+    </div>
+    <div class="col-md-8">
+        <h1>Checkout Book Form</h1>
+        <form action="/books/checkout" method="post">
+            <label for="patron-name">Name:</label>
+            <input type="text" name="patron-name" required>
+            <label for="book-title">Book Title:</label>
+            <input type="text" name="book-title" required>
+            <label for="checkout-date">Checkout Date:</label>
+            <input type="date" name="checkout-date" required>
+            <button type="submit" name="button">Checkout Book!</button>
+        </form>
+
+    </div>
+</div>

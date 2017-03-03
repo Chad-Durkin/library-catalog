@@ -55,56 +55,56 @@ namespace LibraryCatalog
         }
 
 
-         public static Patron FindPatronByName(string name)
-         {
-             SqlConnection conn = DB.Connection();
-             conn.Open();
+        public static Patron FindPatronByName(string name)
+        {
+            SqlConnection conn = DB.Connection();
+            conn.Open();
 
-             SqlCommand cmd = new SqlCommand("SELECT * FROM patrons WHERE name = @PatronName;", conn);
+            SqlCommand cmd = new SqlCommand("SELECT * FROM patrons WHERE name = @PatronName;", conn);
 
-             cmd.Parameters.Add(new SqlParameter("@PatronName", name));
+            cmd.Parameters.Add(new SqlParameter("@PatronName", name));
 
-             SqlDataReader rdr = cmd.ExecuteReader();
+            SqlDataReader rdr = cmd.ExecuteReader();
 
-             int patronId = 0;
-             string patronName = null;
+            int patronId = 0;
+            string patronName = null;
 
-             while(rdr.Read())
-             {
-                 patronId = rdr.GetInt32(0);
-                 patronName = rdr.GetString(1);
-             }
+            while(rdr.Read())
+            {
+                patronId = rdr.GetInt32(0);
+                patronName = rdr.GetString(1);
+            }
 
-             Patron newPatron = new Patron(patronName, patronId);
+            Patron newPatron = new Patron(patronName, patronId);
 
-             DB.CloseSqlConnection(rdr, conn);
+            DB.CloseSqlConnection(rdr, conn);
 
-             return newPatron;
-         }
+            return newPatron;
+        }
 
-         public static List<Patron> GetAll()
-         {
-             List<Patron> allPatrons = new List<Patron>{};
+        public static List<Patron> GetAll()
+        {
+            List<Patron> allPatrons = new List<Patron>{};
 
-             SqlConnection conn = DB.Connection();
-             conn.Open();
+            SqlConnection conn = DB.Connection();
+            conn.Open();
 
-             SqlCommand cmd = new SqlCommand("SELECT * FROM patrons", conn);
+            SqlCommand cmd = new SqlCommand("SELECT * FROM patrons", conn);
 
-             SqlDataReader rdr = cmd.ExecuteReader();
+            SqlDataReader rdr = cmd.ExecuteReader();
 
-             while(rdr.Read())
-             {
-                 int patronId = rdr.GetInt32(0);
-                 string patronName = rdr.GetString(1);
-                 Patron newPatron = new Patron(patronName, patronId);
-                 allPatrons.Add(newPatron);
-             }
+            while(rdr.Read())
+            {
+                int patronId = rdr.GetInt32(0);
+                string patronName = rdr.GetString(1);
+                Patron newPatron = new Patron(patronName, patronId);
+                allPatrons.Add(newPatron);
+            }
 
-             DB.CloseSqlConnection(rdr, conn);
+            DB.CloseSqlConnection(rdr, conn);
 
-             return allPatrons;
-         }
+            return allPatrons;
+        }
 
         public int GetId()
         {

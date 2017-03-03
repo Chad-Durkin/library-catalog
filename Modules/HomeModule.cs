@@ -64,6 +64,33 @@ namespace LibraryCatalog
                 Book foundBook = Book.FindByAuthorName(Request.Query["author"]);
                 return View["book.cshtml", foundBook];
             };
+            Get["/books/checkout"] = _ => {
+                List<Book> allBooks = Book.GetAll();
+                return View["checkout_book.cshtml", allBooks];
+            };
+            Post["/books/checkout"] = _ => {
+                Dictionary<string, object> model = new Dictionary<string, object>{};
+                bool checkedOutSuccess = false;
+                Patron newPatron = new Patron(Request.Form["patron-name"]);
+                newPatron.Save();
+                Book foundBook = Book.FindByTitle(Request.Query["title"]);
+                List<Book> availableBooks = foundBook.BooksNotCheckedOut();
+                if(availableBooks.Count > 0)
+                {
+                    Book checkoutBook = availableBooks[0];
+                    List<Copy> bookCopies = Copy.AvailableCopiesOfBook(checkoutBook.GetId());
+                    Copy copyToCheckOut = bookCopies[0];
+                    Checkout newCheckout = new Checkout(newPatron.GetId(), copyToCheckOut.GetId(), Request.Form["checkout-date"]);
+                    newCheckout.Save();
+                    copyToCheckOut.SetCheckedOut();
+                    model.Add("patron", newPatron);
+                    model.Add("book", foundBook);
+                    model.Add("checkout", newCheckout);
+                    return View["checkedout.cshtml", newCheckout];
+                }
+
+                return View["didnt_work.cshtml"];
+            };
         }
     }
 }

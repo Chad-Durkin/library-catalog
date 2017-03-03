@@ -80,33 +80,33 @@ namespace LibraryCatalog
             return allCopies;
         }
 
-        // public static List<Copy> AvailableCopiesOfBook(int bookId)
-        // {
-        //     List<Copy> allCopies = new List<Copy>{};
-        //
-        //     SqlConnection conn = DB.Connection();
-        //     conn.Open();
-        //
-        //     SqlCommand cmd = new SqlCommand("SELECT * FROM copies WHERE books_id = @BooksId AND checkedout != @Checkedout;", conn);
-        //
-        //     cmd.Parameters.Add(new SqlParameter("@BooksId", bookId));
-        //     cmd.Parameters.Add(new SqlParameter("@Checkedout", 1));
-        //
-        //     SqlDataReader rdr = cmd.ExecuteReader();
-        //
-        //     while(rdr.Read())
-        //     {
-        //         int copyId = rdr.GetInt32(0);
-        //         int copyBooksId = rdr.GetInt32(1);
-        //         int copyCheckedOut = rdr.GetByte(2);
-        //         Copy newCopy = new Copy(copyBooksId, copyCheckedOut, copyId);
-        //         allCopies.Add(newCopy);
-        //     }
-        //
-        //     DB.CloseSqlConnection(rdr, conn);
-        //
-        //     return allCopies;
-        // }
+        public static List<Copy> AvailableCopiesOfBook(int bookId)
+        {
+            List<Copy> allCopies = new List<Copy>{};
+
+            SqlConnection conn = DB.Connection();
+            conn.Open();
+
+            SqlCommand cmd = new SqlCommand("SELECT * FROM copies WHERE books_id = @BooksId AND checkedout = @Checkedout;", conn);
+
+            cmd.Parameters.Add(new SqlParameter("@BooksId", bookId));
+            cmd.Parameters.Add(new SqlParameter("@Checkedout", "0"));
+
+            SqlDataReader rdr = cmd.ExecuteReader();
+
+            while(rdr.Read())
+            {
+                int copyId = rdr.GetInt32(0);
+                int copyBooksId = rdr.GetInt32(1);
+                int copyCheckedOut = rdr.GetByte(2);
+                Copy newCopy = new Copy(copyBooksId, copyCheckedOut, copyId);
+                allCopies.Add(newCopy);
+            }
+
+            DB.CloseSqlConnection(rdr, conn);
+
+            return allCopies;
+        }
 
         public static List<Copy> GetAll()
         {

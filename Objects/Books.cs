@@ -262,6 +262,8 @@ namespace LibraryCatalog
             return booksAvailable;
         }
 
+
+
         public void DeleteBook()
         {
             Book foundBook = Book.FindById(this.GetId());
